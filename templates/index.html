@@ -1,91 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Brain Tumor Classification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet" />
     <style>
+        /* Reset + body gradient */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
         body {
-            text-align: center; /* align text to the center */
-            font-family: Arial, sans-serif; /* set a default font */
+            height: 100%;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .container {
-            width: 60%; /* set the width of the container */
-            margin: auto; /* auto margins for horizontal centering */
+
+        /* PAGE LAYOUT */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr minmax(auto, 900px) 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* add a shadow for depth */
-            border-radius: 10px; /* round the corners */
-            background-color: #f0f0f0; /* set a background color */
-            margin-top: 50px; /* adds some space at the top */
         }
-        #testImage {
-        width: 500px;
-        height: 500px;
-        object-fit: cover; /* resize the image to cover the element's box */
-        border-radius: 10px; /* round the corners of the image */
+
+        /* SIDE BAR */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 8px;
+            padding: 1.5rem;
+            color: #2c3e50;
+            line-height: 1.6;
+            font-size: 0.95rem;
         }
-        #loadingIndicator {
-            display: none; /* hidden by default */
-            position: fixed; /* positioned relative to the viewport */
-            top: 50%; /* center vertically */
-            left: 50%; /* center horizontally */
-            transform: translate(-50%, -50%); /* adjust the position */
-            font-size: 2em; /* larger text */
-            color: #000; /* text color */
-            z-index: 1000; /* ensure it's on top */
-            background-color: rgba(255, 255, 255, 0.8); /* semi-transparent white background */
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+
+        .sidebar h2 {
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #2c3e50;
         }
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 1em;
-            color: white;
-            background-color: #007bff;
+
+        .sidebar ul {
+            margin: 0.5rem 0 1rem;
+            padding-left: 1.2rem;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar a {
+            color: #4ca1af;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+
+        /* MAIN CARD (center column) */
+        .card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.8s ease-out both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* IMAGE SECTION */
+        .image-section {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-section img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            max-height: 600px;
+        }
+
+        /* INFO SECTION */
+        .info-section {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .info-section h1 {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .labels {
+            margin: 1rem 0;
+        }
+
+        .labels span {
+            display: block;
+            font-size: 1.1rem;
+        }
+
+        /* BUTTON */
+        .info-section button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #fff;
+            background: #4ca1af;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
+            transition: background 0.2s;
         }
-        button:hover {
-            background-color: #0056b3;
+
+        .info-section button:hover {
+            background: #3b8a93;
+        }
+
+        /* LOADING OVERLAY */
+        #loadingIndicator {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #loadingIndicator>div {
+            background: #fff;
+            padding: 1.2rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-size: 1.4rem;
+        }
+
+        /* RESPONSIVE: stack into single column below 1100px */
+        @media (max-width:1100px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .card {
+                grid-template-columns: 1fr;
+            }
+
+            .image-section {
+                max-height: 300px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Brain Tumor Image Prediction</h1>
-        <img id="testImage" src="" alt="Test Image">
-        <p id="actualLabel">Actual Label: </p>
-        <p id="predictedLabel">Predicted Label: </p>
-        <button onclick="getNextImage()">Load Random Image</button>
+    <!-- LOADING OVERLAY -->
+    <div id="loadingIndicator">
+        <div>Loading…</div>
     </div>
 
-    <!-- Loading Indicator -->
-    <div id="loadingIndicator">Loading...</div>
-    
+    <div class="layout">
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+            <h2>About This Model</h2>
+            <p>
+                This CNN was trained on the Kaggle Brain Tumor MRI dataset (
+                <a href="https://github.com/Avelez164/Brain-Tumor-Detection" target="_blank">
+                    GitHub Repository
+                </a>
+                ) containing 7,023 images, split into four classes:
+            </p>
+            <ul>
+                <li><strong>Glioma:</strong> Arises from glial cells—often malignant, found in cerebral hemispheres.
+                </li>
+                <li><strong>Meningioma:</strong> Originates from the meninges—usually benign, occurs near brain surface.
+                </li>
+                <li><strong>No Tumor:</strong> Normal brain scans with no detectable tumor tissue.</li>
+                <li><strong>Pituitary:</strong> Develops in the pituitary gland—can affect hormone regulation.</li>
+            </ul>
+            <p>
+                • Architecture: 5 convolutional layers + dense head<br>
+                • Framework: TensorFlow 2.10 & Keras API<br>
+                • Test‐set accuracy: ~92%
+            </p>
+            <p>
+                • Model weights stored in
+                <code>models/brain_tumor_cnn_classifier.keras</code><br>
+                • JSON structure in <code>models/CNN_structure.json</code><br>
+                • See README for setup, training logs, and usage.
+            </p>
+        </aside>
+
+        <!-- CENTER PREDICTION CARD -->
+        <div class="card">
+            <div class="image-section">
+                <img id="testImage" src="" alt="Brain MRI scan" />
+            </div>
+            <div class="info-section">
+                <h1>Brain Tumor Image Prediction</h1>
+                <div class="labels">
+                    <span id="actualLabel">Actual Label: --</span>
+                    <span id="predictedLabel">Predicted Label: --</span>
+                </div>
+                <button onclick="getNextImage()">Load Random Image</button>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <aside class="sidebar">
+            <h2>Usage & Notes</h2>
+            <ul>
+                <li>Click “Load Random Image” to fetch a new MRI from the test set.</li>
+                <li>Prediction latency ≈ 200 ms on a small CPU instance.</li>
+                <li>
+                    To run locally:
+                    <code>git clone && pip install -r requirements.txt && flask run</code>
+                </li>
+                <li>
+                    For production, deploy via Render, Cloud Run, or PythonAnywhere.
+                </li>
+            </ul>
+        </aside>
+    </div>
+
     <script>
         function getNextImage() {
-            document.getElementById('loadingIndicator').style.display = 'block'; // show loading indicator
-
+            document.getElementById('loadingIndicator').style.display = 'flex';
             fetch('/get-random-image')
-                .then(response => response.json())
+                .then(res => res.json())
                 .then(data => {
                     document.getElementById('testImage').src = data.image_path;
-                    document.getElementById('actualLabel').innerText = 'Actual Label: ' + data.actual_label;
-                    document.getElementById('predictedLabel').innerText = 'Predicted Label: ' + data.predicted_label;
-                    document.getElementById('loadingIndicator').style.display = 'none'; // hide loading indicator
+                    document.getElementById('actualLabel').innerText =
+                        'Actual Label: ' + data.actual_label;
+                    document.getElementById('predictedLabel').innerText =
+                        'Predicted Label: ' + data.predicted_label;
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('loadingIndicator').style.display = 'none'; // hide loading indicator
-                });
+                .catch(console.error)
+                .finally(() =>
+                (document.getElementById('loadingIndicator').style.display =
+                    'none')
+                );
         }
-
-        // load an image when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            getNextImage();
-        }, false);
+        document.addEventListener('DOMContentLoaded',getNextImage);
     </script>
 </body>
+
 </html>

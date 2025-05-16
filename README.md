@@ -1,5 +1,5 @@
 # CPSC481-Project
-# NeuroScanAI — Brain Tumor Detection & Summary Demo
+# NeuroScanAI Brain Tumor Detection & Summary Demo
 
 **Authors**: Jenny Phan, Antonio Velez  
 

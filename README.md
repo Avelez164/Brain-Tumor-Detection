@@ -38,4 +38,23 @@ From the project root, start the Flask server:
 python3 app.py
 ```````
 
+📊 Performance & Notes
+1. Backbone: ResNet50 pre-trained on ImageNet, fine-tuned on 7,023 MRI scans.
+
+2. Accuracy: ~70–75% on held-out test data → you will see occasional misclassifications.
+
+3. NLP Summary: Template-based, zero external model → runs in <2 GB RAM.
+
+Improvement Ideas:
+
+1. Unfreeze additional ResNet layers + use a lower learning rate
+
+2. Add a learning-rate scheduler (e.g. ReduceLROnPlateau) + EarlyStopping
+
+3. Increase data augmentation (elastic, shear, flips, brightness)
+
+4. Swap to a lighter backbone (EfficientNetB0) or ensemble multiple models
+
+
+
 ![Screenshot 2025-05-16 082606](https://github.com/user-attachments/assets/d51e726b-5f9d-4680-bf2e-b12a4aaaa4e0)
